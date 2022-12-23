@@ -46,6 +46,14 @@ repos:
             tests/core/test_simpleeval.py
         )$
 
+- repo: https://github.com/charliermarsh/ruff-pre-commit
+  rev: 'v0.0.231'
+  hooks:
+    - id: ruff
+      # Respect `exclude` and `extend-exclude` settings.
+      args: ["--force-exclude", "--fix"]
+      files: 'singer_sdk/.*'
+
 - repo: https://github.com/pycqa/isort
   rev: 5.11.4
   hooks:
@@ -58,8 +66,6 @@ repos:
   - id: flake8
     additional_dependencies:
     - darglint==1.8.1
-    - flake8-annotations==2.9.0
-    - flake8-docstrings==1.6.0
     files: 'singer_sdk/.*'
 
 - repo: https://github.com/asottile/pyupgrade

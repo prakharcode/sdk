@@ -50,7 +50,10 @@ class TestConnectorSQL:
                     "column_name": "old_name",
                     "new_column_name": "new_name",
                 },
-                "ALTER TABLE %(table_name)s RENAME COLUMN %(column_name)s to %(new_column_name)s",
+                (
+                    "ALTER TABLE %(table_name)s "
+                    "RENAME COLUMN %(column_name)s to %(new_column_name)s"
+                ),
                 "ALTER TABLE full.table.name RENAME COLUMN old_name to new_name",
             ),
             (
@@ -65,7 +68,10 @@ class TestConnectorSQL:
                     "column_name": "column_name",
                     "column_type": sqlalchemy.types.String(),
                 },
-                "ALTER TABLE %(table_name)s ALTER COLUMN %(column_name)s (%(column_type)s)",
+                (
+                    "ALTER TABLE %(table_name)s "
+                    "ALTER COLUMN %(column_name)s (%(column_type)s)"
+                ),
                 "ALTER TABLE full.table.name ALTER COLUMN column_name (VARCHAR)",
             ),
         ],

@@ -107,15 +107,15 @@ _JsonValue: TypeAlias = Union[
 ]
 
 
-def extend_validator_with_defaults(validator_class):  # noqa
+def extend_validator_with_defaults(validator_class):  # noqa: ANN001, ANN201
     """Fill in defaults, before validating with the provided JSON Schema Validator.
 
     See https://python-jsonschema.readthedocs.io/en/latest/faq/#why-doesn-t-my-schema-s-default-property-set-the-default-on-my-instance  # noqa
     for details.
-    """
+    """  # noqa: E501
     validate_properties = validator_class.VALIDATORS["properties"]
 
-    def set_defaults(validator, properties, instance, schema):  # noqa
+    def set_defaults(validator, properties, instance, schema):  # noqa: ANN001, ANN202
         for property, subschema in properties.items():
             if "default" in subschema:
                 instance.setdefault(property, subschema["default"])

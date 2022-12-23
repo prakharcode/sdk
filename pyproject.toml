@@ -186,3 +186,31 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 # Sample CLI declaration:
 # sdk-tap-countries-sample = 'singer_sdk.samples.sample_tap_countries.countries_tap:SampleTapCountries.cli'
+
+[tool.ruff]
+exclude = [
+    "cookiecutter",
+]
+extend-ignore = [
+    "ANN101", # Missing type annotation for self
+    "C901", # McCabe
+]
+extend-select = [
+    "ANN", # Type Annotations
+    "D", # Docstrings
+]
+line-length = 88
+target-version = "py37"
+
+[tool.ruff.flake8-annotations]
+allow-star-arg-any = true
+
+[tool.ruff.flake8-errmsg]
+max-string-length = 20
+
+[tool.ruff.per-file-ignores]
+"singer_sdk/helpers/_*.py" = ["ANN"]
+"tests/*.py" = ["ANN", "D"]
+
+[tool.ruff.pydocstyle]
+convention = "google"

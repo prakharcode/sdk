@@ -5,7 +5,6 @@ import io
 import json
 import logging
 from contextlib import redirect_stdout
-from re import I
 from typing import Counter
 
 from samples.sample_tap_countries.countries_tap import SampleTapCountries

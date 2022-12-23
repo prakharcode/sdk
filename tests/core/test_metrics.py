@@ -1,6 +1,5 @@
 import logging
 import time
-from textwrap import dedent
 
 import pytest
 

@@ -42,7 +42,7 @@ class BaseBatchFileEncoding:
         """Register subclasses.
 
         Args:
-            **kwargs: Keyword arguments.
+            kwargs: Keyword arguments.
         """
         super().__init_subclass__(**kwargs)
         cls.registered_encodings[cls.__encoding_format__] = cls
