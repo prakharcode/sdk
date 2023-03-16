@@ -12,10 +12,10 @@ import logging
 from os import PathLike
 from pathlib import Path
 from types import MappingProxyType
-from typing import Any, Generator, Iterable, Iterator, Mapping, TypeVar, cast
+from typing import Any, Generator, Iterable, Iterator, Mapping, TypeVar
 from uuid import uuid4
 
-import pendulum
+from dateutil.parser import parse as parse_datetime
 
 import singer_sdk._singerlib as singer
 from singer_sdk import metrics
@@ -280,7 +280,7 @@ class Stream(metaclass=abc.ABCMeta):
                 f"The replication key {self.replication_key} is not of timestamp type",
             )
 
-        return cast(datetime.datetime, pendulum.parse(value))
+        return parse_datetime(value)
 
     @final
     @property
@@ -358,7 +358,7 @@ class Stream(metaclass=abc.ABCMeta):
             The most recent value between the bookmark and start date.
         """
         if self.is_timestamp_replication_key:
-            return max(value, start_date_value, key=pendulum.parse)
+            return max(value, start_date_value, key=parse_datetime)
         else:
             return value
 

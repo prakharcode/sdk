@@ -9,8 +9,6 @@ from enum import Enum
 from functools import lru_cache
 from typing import Any, cast
 
-import pendulum
-
 _MAX_TIMESTAMP = "9999-12-31 23:59:59.999999"
 _MAX_TIME = "23:59:59.999999"
 JSONSCHEMA_ANNOTATION_SECRET = "secret"
@@ -28,10 +26,11 @@ class DatetimeErrorTreatmentEnum(Enum):
 def to_json_compatible(val: Any) -> Any:
     """Return as string if datetime. JSON does not support proper datetime types.
 
-    If given a naive datetime object, pendulum automatically makes it utc
+    If given a naive datetime object, make it utc
     """
-    if isinstance(val, (datetime.datetime, pendulum.DateTime)):
-        val = pendulum.instance(val).isoformat()
+    if isinstance(val, datetime.datetime):
+        val = val.replace(tzinfo=datetime.timezone.utc) if val.tzinfo is None else val
+        return val.isoformat()
     return val
 
 
@@ -450,7 +449,7 @@ def _conform_record_data_types(
 
 def _conform_primitive_property(elem: Any, property_schema: dict) -> Any:
     """Converts a primitive (i.e. not object or array) to a json compatible type."""
-    if isinstance(elem, (datetime.datetime, pendulum.DateTime)):
+    if isinstance(elem, datetime.datetime):
         return to_json_compatible(elem)
     elif isinstance(elem, datetime.date):
         return elem.isoformat() + "T00:00:00+00:00"

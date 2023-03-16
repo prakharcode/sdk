@@ -6,7 +6,7 @@ import enum
 import sys
 import typing as t
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
+from datetime import date, datetime
 
 import pytz
 import simplejson as json
@@ -32,6 +32,23 @@ def exclude_null_dict(pairs: list[tuple[str, t.Any]]) -> dict[str, t.Any]:
         The filtered key-value pairs.
     """
     return {key: value for key, value in pairs if value is not None}
+
+
+class SingerEncoder(json.JSONEncoder):
+    """Singer message encoder."""
+
+    def default(self, obj: t.Any) -> t.Any:  # noqa: ANN401
+        """Encode a message.
+
+        Args:
+            obj: The message to encode.
+
+        Returns:
+            The encoded message.
+        """
+        if isinstance(obj, (date, datetime)):
+            return obj.isoformat()
+        return super().default(obj)
 
 
 @dataclass
@@ -185,7 +202,7 @@ def format_message(message: Message) -> str:
     Returns:
         The formatted message.
     """
-    return json.dumps(message.to_dict(), use_decimal=True, default=str)
+    return json.dumps(message.to_dict(), use_decimal=True, cls=SingerEncoder)
 
 
 def write_message(message: Message) -> None:

@@ -6,8 +6,8 @@ import logging
 from datetime import datetime
 from typing import Any
 
-import pendulum
 import pytest
+from dateutil.parser import parse as parse_datetime
 
 from singer_sdk.helpers._typing import (
     TypeConformanceLevel,
@@ -21,19 +21,19 @@ from singer_sdk.helpers._typing import (
     "record,schema,expected_row,ignore_props_message",
     [
         (
-            {"updatedAt": pendulum.parse("2021-08-25T20:05:28+00:00")},
+            {"updatedAt": parse_datetime("2021-08-25T20:05:28+00:00")},
             {"properties": {"updatedAt": True}},
             {"updatedAt": "2021-08-25T20:05:28+00:00"},
             None,
         ),
         (
-            {"updatedAt": pendulum.parse("2021-08-25T20:05:28Z")},
+            {"updatedAt": parse_datetime("2021-08-25T20:05:28Z")},
             {"properties": {"updatedAt": True}},
             {"updatedAt": "2021-08-25T20:05:28+00:00"},
             None,
         ),
         (
-            {"updatedAt": pendulum.parse("2021-08-25T20:05:28")},
+            {"updatedAt": parse_datetime("2021-08-25T20:05:28")},
             {"properties": {"updatedAt": True}},
             {"updatedAt": "2021-08-25T20:05:28+00:00"},
             None,
@@ -84,8 +84,8 @@ def test_conform_record_data_types(
 @pytest.mark.parametrize(
     "datetime_val,expected",
     [
-        (pendulum.parse("2021-08-25T20:05:28+00:00"), "2021-08-25T20:05:28+00:00"),
-        (pendulum.parse("2021-08-25T20:05:28+07:00"), "2021-08-25T20:05:28+07:00"),
+        (parse_datetime("2021-08-25T20:05:28+00:00"), "2021-08-25T20:05:28+00:00"),
+        (parse_datetime("2021-08-25T20:05:28+07:00"), "2021-08-25T20:05:28+07:00"),
         (
             datetime.strptime("2021-08-25T20:05:28", "%Y-%m-%dT%H:%M:%S"),
             "2021-08-25T20:05:28+00:00",

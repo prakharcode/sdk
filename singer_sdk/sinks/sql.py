@@ -9,13 +9,13 @@ from textwrap import dedent
 from typing import Any, Iterable
 
 import sqlalchemy
-from pendulum import now
 from sqlalchemy.sql import Executable
 from sqlalchemy.sql.expression import bindparam
 
 from singer_sdk.connectors import SQLConnector
 from singer_sdk.exceptions import ConformedNameClashException
 from singer_sdk.helpers._conformers import replace_leading_digit
+from singer_sdk.helpers._util import utc_now
 from singer_sdk.plugin_base import PluginBase
 from singer_sdk.sinks.batch import BatchSink
 
@@ -363,7 +363,7 @@ class SQLSink(BatchSink):
         if not self.connector.table_exists(self.full_table_name):
             return
 
-        deleted_at = now()
+        deleted_at = utc_now()
 
         if not self.connector.column_exists(
             full_table_name=self.full_table_name,

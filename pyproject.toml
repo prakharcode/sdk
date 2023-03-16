@@ -40,7 +40,6 @@ license = "Apache 2.0"
 [tool.poetry.dependencies]
 python = "<3.12,>=3.7.1"
 backoff = ">=2.0.0,<3.0"
-pendulum = "^2.1.0"
 click = "~=8.0"
 fs = "^2.4.16"
 PyJWT = "~=2.4"
@@ -229,12 +228,14 @@ select = [
     "YTT",  # flake8-2020
     "ANN",  # flake8-annotations
     "COM",  # flake8-commas
+    "C4",   # flake8-comprehensions
     "T10",  # flake8-debugger
     "ISC",  # flake8-implicit-str-concat
     "ICN",  # flake8-import-conventions
     "INP",  # flake8-no-pep420
     "PIE",  # flake8-pie
     "PT",   # flake8-pytest-style
+    "Q",    # flake8-quotes
 ]
 src = ["samples", "singer_sdk", "tests"]
 target-version = "py37"

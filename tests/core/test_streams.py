@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
+import datetime
 import logging
 from typing import Any, Iterable, cast
 
-import pendulum
 import pytest
 import requests
+from dateutil.parser import parse as parse_datetime
 
 from singer_sdk._singerlib import Catalog, MetadataMapping
 from singer_sdk.helpers._classproperty import classproperty
@@ -30,6 +31,7 @@ from singer_sdk.typing import (
 )
 
 CONFIG_START_DATE = "2021-01-01"
+START_DATE = datetime.datetime(2021, 1, 1)
 
 
 class SimpleTestStream(Stream):
@@ -70,7 +72,7 @@ class UnixTimestampIncrementalStream2(UnixTimestampIncrementalStream):
     def compare_start_date(self, value: str, start_date_value: str) -> str:
         """Compare a value to a start date value."""
 
-        start_timestamp = pendulum.parse(start_date_value).format("X")
+        start_timestamp = parse_datetime(start_date_value).strftime("%s")
         return max(value, start_timestamp, key=float)
 
 
@@ -191,19 +193,19 @@ def test_stream_apply_catalog(tap: SimpleTestTap, stream: SimpleTestStream):
         pytest.param(
             "test",
             None,
-            pendulum.parse(CONFIG_START_DATE),
+            datetime.datetime(2021, 1, 1),
             id="datetime-repl-key-no-state",
         ),
         pytest.param(
             "test",
             "2021-02-01",
-            pendulum.datetime(2021, 2, 1),
+            datetime.datetime(2021, 2, 1),
             id="datetime-repl-key-recent-bookmark",
         ),
         pytest.param(
             "test",
             "2020-01-01",
-            pendulum.parse(CONFIG_START_DATE),
+            datetime.datetime(2021, 1, 1),
             id="datetime-repl-key-old-bookmark",
         ),
         pytest.param(
@@ -239,7 +241,7 @@ def test_stream_apply_catalog(tap: SimpleTestTap, stream: SimpleTestStream):
         pytest.param(
             "unix_ts_override",
             "1577858400",
-            pendulum.parse(CONFIG_START_DATE).format("X"),
+            datetime.datetime(2021, 1, 1).strftime("%s"),
             id="unix-ts-repl-key-old-bookmark",
         ),
     ],
