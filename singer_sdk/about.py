@@ -28,6 +28,7 @@ class AboutInfo:
     description: str | None
     version: str
     sdk_version: str
+    requires_python: str
 
     capabilities: list[CapabilitiesEnum]
     settings: dict
@@ -88,6 +89,7 @@ class TextFormatter(AboutFormatter, format_name="text"):
             Description: {about_info.description}
             Version: {about_info.version}
             SDK Version: {about_info.sdk_version}
+            Requires Python: {about_info.requires_python}
             Capabilities: {about_info.capabilities}
             Settings: {about_info.settings}""",
         )
@@ -116,6 +118,7 @@ class JSONFormatter(AboutFormatter, format_name="json"):
                 ("description", about_info.description),
                 ("version", about_info.version),
                 ("sdk_version", about_info.sdk_version),
+                ("requires_python", about_info.requires_python),
                 ("capabilities", [c.value for c in about_info.capabilities]),
                 ("settings", about_info.settings),
             ],

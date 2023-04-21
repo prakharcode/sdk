@@ -3,7 +3,10 @@ from __future__ import annotations
 import os
 from unittest import mock
 
-from singer_sdk.plugin_base import PluginBase
+import pytest
+
+from singer_sdk.helpers._compat import metadata
+from singer_sdk.plugin_base import NoPackageFoundForPluginError, PluginBase
 from singer_sdk.typing import IntegerType, PropertiesList, Property, StringType
 
 
@@ -41,3 +44,24 @@ def test_get_env_var_config():
     assert "PROP2" not in env_config
     assert "prop3" not in no_env_config
     assert "PROP3" not in env_config
+
+
+class MockDistribution:
+    @property
+    def metadata(self):
+        return {
+            "Version": "0.0.1",
+            "Requires-Python": ">=3.7",
+        }
+
+
+def test_plugin_package_distribution(monkeypatch):
+    monkeypatch.setattr(metadata, "distribution", lambda _: MockDistribution())
+    meta = PluginTest.distribution.metadata
+    assert meta["Version"] == "0.0.1"
+    assert meta["Requires-Python"] == ">=3.7"
+
+
+def test_plugin_package_distribution_not_found():
+    with pytest.raises(NoPackageFoundForPluginError):
+        _ = PluginTest.distribution

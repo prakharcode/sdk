@@ -28,6 +28,7 @@ def about_info() -> AboutInfo:
         description="Example tap for Singer SDK",
         version="0.1.1",
         sdk_version="1.0.0",
+        requires_python="<3.12,>=3.7.1",
         capabilities=[
             TapCapabilities.CATALOG,
             TapCapabilities.DISCOVER,

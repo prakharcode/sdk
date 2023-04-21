@@ -36,6 +36,73 @@ SDK_PACKAGE_NAME = "singer_sdk"
 JSONSchemaValidator = extend_validator_with_defaults(Draft7Validator)
 
 
+class NoPackageFoundForPluginError(Exception):
+    """Exception raised when a plugin package cannot be found."""
+
+    def __init__(self, plugin_name: str) -> None:
+        """Initialize the exception.
+
+        Args:
+            plugin_name: The name of the plugin.
+        """
+        super().__init__(f"Could not find package for plugin '{plugin_name}'")
+
+
+def _get_package_distribution(package: str) -> metadata.Distribution:
+    """Get the distribution object for a package.
+
+    Args:
+        package: The package name.
+
+    Returns:
+        The package distribution object, or None if not found.
+
+    Raises:
+        NoPackageFoundForPluginError: If the package cannot be found.
+    """
+    try:
+        return metadata.distribution(package)
+    except metadata.PackageNotFoundError as exc:
+        raise NoPackageFoundForPluginError(package) from exc
+
+
+def get_sdk_version() -> str:
+    """Return the package version number.
+
+    Returns:
+        The package version number.
+    """
+    dist = _get_package_distribution(SDK_PACKAGE_NAME)
+    return dist.version if dist else "[could not be detected]"
+
+
+class PluginDistribution:
+    """Decriptor used to retrieve a plugin's package distribution information."""
+
+    def __init__(self) -> None:
+        """Initialize the distribution descriptor."""
+        self._distribution: metadata.Distribution | None = None
+
+    def __get__(
+        self,
+        instance: PluginBase | None,
+        owner: type[PluginBase],
+    ) -> metadata.Distribution:
+        """Get the plugin distribution.
+
+        Args:
+            instance: The instance of the plugin.
+            owner: The class of the plugin.
+
+        Returns:
+            The package distribution.
+        """
+        if self._distribution is None:
+            name = instance.name if instance else owner.name
+            self._distribution = _get_package_distribution(name)
+        return self._distribution
+
+
 class PluginBase(metaclass=abc.ABCMeta):
     """Abstract base class for taps."""
 
@@ -45,6 +112,8 @@ class PluginBase(metaclass=abc.ABCMeta):
     # A JSON Schema object defining the config options that this tap will accept.
 
     _config: dict
+
+    distribution = PluginDistribution()
 
     @classproperty
     def logger(cls) -> logging.Logger:  # noqa: N805
@@ -145,60 +214,6 @@ class PluginBase(metaclass=abc.ABCMeta):
         cls.append_builtin_config(config_jsonschema)
 
         return parse_environment_config(config_jsonschema, plugin_env_prefix)
-
-    # Core plugin metadata:
-
-    @staticmethod
-    def _get_package_version(package: str) -> str:
-        """Return the package version number.
-
-        Args:
-            package: The package name.
-
-        Returns:
-            The package version number.
-        """
-        try:
-            version = metadata.version(package)
-        except metadata.PackageNotFoundError:
-            version = "[could not be detected]"
-        return version
-
-    @classmethod
-    def get_plugin_version(cls) -> str:
-        """Return the package version number.
-
-        Returns:
-            The package version number.
-        """
-        return cls._get_package_version(cls.name)
-
-    @classmethod
-    def get_sdk_version(cls) -> str:
-        """Return the package version number.
-
-        Returns:
-            The package version number.
-        """
-        return cls._get_package_version(SDK_PACKAGE_NAME)
-
-    @classproperty
-    def plugin_version(cls) -> str:  # noqa: N805
-        """Get version.
-
-        Returns:
-            The package version number.
-        """
-        return cls.get_plugin_version()
-
-    @classproperty
-    def sdk_version(cls) -> str:  # noqa: N805
-        """Return the package version number.
-
-        Returns:
-            Meltano Singer SDK version number.
-        """
-        return cls.get_sdk_version()
 
     # Abstract methods:
 
@@ -302,7 +317,9 @@ class PluginBase(metaclass=abc.ABCMeta):
 
         .. _print: https://docs.python.org/3/library/functions.html#print
         """
-        print_fn(f"{cls.name} v{cls.plugin_version}, Meltano SDK v{cls.sdk_version}")
+        print_fn(
+            f"{cls.name} v{cls.distribution.version}, Meltano SDK v{get_sdk_version()}",
+        )
 
     @classmethod
     def _get_about_info(cls: type[PluginBase]) -> about.AboutInfo:
@@ -314,11 +331,14 @@ class PluginBase(metaclass=abc.ABCMeta):
         config_jsonschema = cls.config_jsonschema
         cls.append_builtin_config(config_jsonschema)
 
+        package_metadata = cls.distribution.metadata
+
         return about.AboutInfo(
             name=cls.name,
             description=cls.__doc__,
-            version=cls.get_plugin_version(),
-            sdk_version=cls.get_sdk_version(),
+            version=package_metadata["Version"],
+            requires_python=package_metadata["Requires-Python"],
+            sdk_version=get_sdk_version(),
             capabilities=cls.capabilities,
             settings=config_jsonschema,
         )
