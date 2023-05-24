@@ -39,6 +39,7 @@ jobs:
   tests:
     name: "Test on ${{ matrix.python-version }} (${{ matrix.session }}) / ${{ matrix.os }} / SQLAlchemy: ${{ matrix.sqlalchemy }}"
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental || false }}
     env:
       NOXSESSION: ${{ matrix.session }}
     strategy:
@@ -52,6 +53,7 @@ jobs:
         - { session: tests,   python-version: "3.11", os: "ubuntu-latest", sqlalchemy: "1.*" }
         - { session: doctest, python-version: "3.10", os: "ubuntu-latest", sqlalchemy: "2.*" }
         - { session: mypy,    python-version: "3.8",  os: "ubuntu-latest", sqlalchemy: "2.*" }
+        - { session: tests,   python-version: "3.12", os: "ubuntu-latest", sqlalchemy: "2.*", experimental: true }
 
     steps:
     - name: Check out the repository
@@ -67,7 +69,7 @@ jobs:
     - name: Setup Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4.7.1
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: ${{ matrix.python-version }}${{ matrix.experimental && '-dev' || '' }}
         architecture: x64
         cache: 'pip'
         cache-dependency-path: 'poetry.lock'
