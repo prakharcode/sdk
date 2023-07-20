@@ -21,7 +21,11 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "<3.12,>=3.7.1"
+{%- if cookiecutter.stream_type == 'SQL' %}
+singer-sdk = { version="^0.30.0", extras = ["sql"] }
+{%- else %}
 singer-sdk = { version="^0.30.0" }
+{%- endif %}
 fs-s3fs = { version = "^1.1.1", optional = true }
 {%- if cookiecutter.stream_type in ["REST", "GraphQL"] %}
 requests = "^2.31.0"
@@ -32,7 +36,11 @@ cached-property = "^1" # Remove after Python 3.7 support is dropped
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.1"
+{%- if cookiecutter.stream_type == 'SQL' %}
+singer-sdk = { version="^0.30.0", extras = ["sql", "testing"] }
+{%- else %}
 singer-sdk = { version="^0.30.0", extras = ["testing"] }
+{%- endif %}
 
 [tool.poetry.extras]
 s3 = ["fs-s3fs"]

@@ -91,6 +91,7 @@ docs = [
     "sphinx-inline-tabs",
 ]
 s3 = ["fs-s3fs"]
+sql = ["sqlalchemy"]
 testing = [
     "pytest",
     "pytest-durations"
