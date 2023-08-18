@@ -397,7 +397,14 @@ class RESTStream(Stream, t.Generic[_TToken], metaclass=abc.ABCMeta):
                 resp = decorated_request(prepared_request, context)
                 request_counter.increment()
                 self.update_sync_costs(prepared_request, resp, context)
-                yield from self.parse_response(resp)
+                records = iter(self.parse_response(resp))
+                try:
+                    first_record = next(records)
+                except StopIteration:
+                    self.logger.info("No records found in response")
+                    break
+                yield first_record
+                yield from records
 
                 paginator.advance(resp)
 
