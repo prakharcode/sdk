@@ -29,7 +29,8 @@ class HostilePropertyNamesStream(Stream):
     @staticmethod
     def get_random_lowercase_string():
         return "".join(
-            random.choice(string.ascii_lowercase) for _ in range(10)  # noqa: S311
+            random.choice(string.ascii_lowercase)  # noqa: S311
+            for _ in range(10)
         )
 
     def get_records(
